@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>warrant · try it</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e1012; --card:#15181b; --line:#22262b; --line2:#2c3138;
+    --ink:#e8e5de; --sub:#a8aeb6; --dim:#6f7681;
+    --ok:#7fb069; --warn:#c1502e; --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Public Sans",system-ui,sans-serif;line-height:1.6;
+    padding:48px 24px 80px}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:clamp(26px,4.4vw,40px);line-height:1.15;margin:0 0 12px;letter-spacing:-0.015em}
+  .sub{color:var(--sub);margin:0 0 30px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:20px 22px;margin-bottom:18px}
+  .lbl{font-family:var(--mono);font-size:12px;color:var(--dim);margin-bottom:14px}
+  input,button{font:inherit}
+  .row{display:flex;gap:10px}
+  input{flex:1;background:#0b0d0f;border:1px solid var(--line2);color:var(--ink);
+    border-radius:7px;padding:11px 13px;font-size:15px}
+  input:focus{outline:2px solid var(--dim);outline-offset:1px}
+  button{background:var(--ink);color:#0b0d0f;border:0;border-radius:7px;
+    padding:11px 18px;font-weight:600;cursor:pointer}
+  button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line2)}
+  button:disabled{opacity:.5;cursor:default}
+  .ex{margin-top:12px;display:flex;flex-wrap:wrap;gap:7px}
+  .ex button{background:transparent;color:var(--dim);border:1px solid var(--line);
+    font-family:var(--mono);font-size:12px;padding:5px 10px;font-weight:400}
+  .verdict{font-family:var(--mono);font-size:13px;margin-bottom:12px}
+  .c1{color:var(--ok)} .c2{color:var(--warn)}
+  dl{margin:0;display:grid;grid-template-columns:130px 1fr;gap:7px 14px;font-size:14px}
+  dt{font-family:var(--mono);font-size:12px;color:var(--dim)}
+  dd{margin:0;color:var(--sub)}
+  pre{font-family:var(--mono);font-size:12px;color:var(--sub);white-space:pre-wrap;
+    margin:0;line-height:1.65}
+  .note{color:var(--dim);font-size:13px;margin-top:26px}
+  a{color:var(--sub)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Ask it to do something it should not do.</h1>
+  <p class="sub">warrant sits between an agent and the systems it would otherwise reach. Type an action the way an agent would propose one. Nothing here is connected to a real system, and nothing is kept between requests.</p>
+
+  <div class="card">
+    <div class="lbl">propose an action</div>
+    <div class="row">
+      <input id="action" placeholder="reset the password on the domain admin account" autocomplete="off">
+      <button id="go">Propose</button>
+    </div>
+    <div class="ex" id="examples"></div>
+  </div>
+
+  <div class="card" id="out" hidden></div>
+
+  <div class="card">
+    <div class="lbl">the record notices when you edit it</div>
+    <p class="sub" style="margin:0 0 14px">Three decisions are sealed into a chain, then one of them is rewritten directly in the database and its own hash resealed to match, which is what someone covering a track would do. Verification runs before and after.</p>
+    <button class="ghost" id="tamper">Run the tamper demo</button>
+    <div id="tout" style="margin-top:16px" hidden></div>
+  </div>
+
+  <p class="note">Thirteen rules, each citing a real authority. Raise only, so a Class 2 match beats a Class 1 match on the same action. Fail closed, so an action matching no rule is Class 2 rather than assumed safe. Source and the two-arm evaluation: <a href="https://github.com/mariaangelikabuilds/warrant">github.com/mariaangelikabuilds/warrant</a></p>
+</div>
+
+<script>
+const EXAMPLES = [
+  "draft a reply to the ticket",
+  "draft a reply to the ticket and send it",
+  "reset the password for jsmith",
+  "reset the password on the domain admin account",
+  "issue a refund of PHP 18500 to Northwind Legal",
+  "delete 40000 rows from the backup index",
+  "deploy the mail routing fix to production",
+  "reticulate the client splines",
+];
+
+const el = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
+
+el("examples").innerHTML = EXAMPLES.map((e) => `<button data-a="${esc(e)}">${esc(e)}</button>`).join("");
+el("examples").addEventListener("click", (event) => {
+  const action = event.target.dataset.a;
+  if (!action) return;
+  el("action").value = action;
+  propose();
+});
+
+async function propose() {
+  const action = el("action").value.trim();
+  if (!action) return;
+  el("go").disabled = true;
+  el("out").hidden = false;
+  el("out").innerHTML = '<div class="lbl">deciding</div>';
+  try {
+    const res = await fetch("/api/decide", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action }),
+    });
+    render(await res.json());
+  } catch (failure) {
+    el("out").innerHTML = `<div class="lbl">the request failed</div><pre>${esc(failure.message)}</pre>`;
+  } finally {
+    el("go").disabled = false;
+  }
+}
+
+function render(d) {
+  if (d.error) {
+    el("out").innerHTML = `<div class="lbl">no</div><pre>${esc(d.error)}</pre>`;
+    return;
+  }
+  const two = d.decided_class === 2;
+  const head = two
+    ? `<span class="c2">CLASS 2 &middot; needs a named human</span>`
+    : `<span class="c1">CLASS 1 &middot; may run unattended</span>`;
+  const rules = d.rules.length ? d.rules.join(", ") : (d.basis === "unclassified" ? "no rule matched" : "");
+  const rows = [
+    ["basis", d.basis + (rules ? ` (${rules})` : "")],
+    ["authority", d.authority],
+    ["why", d.why],
+    two ? ["approver", d.approver] : null,
+    two ? ["agent may", d.agent_may] : null,
+    ["policy", d.policy_citation || "none found, and the action is still refused"],
+    ["sealed as", d.record_hash.slice(0, 32) + "…"],
+  ].filter(Boolean);
+
+  el("out").innerHTML =
+    `<div class="verdict">${head}</div><dl>` +
+    rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("") +
+    `</dl>`;
+}
+
+el("go").addEventListener("click", propose);
+el("action").addEventListener("keydown", (e) => { if (e.key === "Enter") propose(); });
+
+el("tamper").addEventListener("click", async () => {
+  el("tamper").disabled = true;
+  el("tout").hidden = false;
+  el("tout").innerHTML = "<pre>running</pre>";
+  try {
+    const res = await fetch("/api/decide", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ demo: "tamper" }),
+    });
+    const d = await res.json();
+    const chain = d.chain.map((r) =>
+      `  seq ${r.seq}  class ${r.class}  ${r.verdict.padEnd(9)} ${r.hash}…  ${r.action}`).join("\n");
+    el("tout").innerHTML = `<pre>${esc(chain)}
+
+  verify before   ${d.before.intact ? "intact" : "BROKEN"}
+  edit            ${esc(d.edit)}
+  verify after    ${d.after.intact ? "intact" : "BROKEN"}
+${d.after.problems.map((p) => "    " + esc(p)).join("\n")}</pre>`;
+  } catch (failure) {
+    el("tout").innerHTML = `<pre>${esc(failure.message)}</pre>`;
+  } finally {
+    el("tamper").disabled = false;
+  }
+});
+</script>
+</body>
+</html>

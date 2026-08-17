@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .env
 *.db
+playground/warrant/
+playground/.vercel/
+playground/__pycache__/

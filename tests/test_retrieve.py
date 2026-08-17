@@ -7,6 +7,7 @@ no support in the corpus get nothing rather than the nearest paragraph.
 Run: python tests/test_retrieve.py
 """
 
+import json
 import sys
 from pathlib import Path
 
@@ -96,8 +97,41 @@ def threshold_separates_the_two_sets(index):
     print(f"  margin: supported floor {min(supported):.3f}, unsupported ceiling {worst:.3f}, threshold {SUPPORT_THRESHOLD}")
 
 
+def the_deciding_rule_outranks_the_words(index):
+    """The case lexical search gets wrong, and the reason rules are consulted first.
+
+    "Reset the password on the domain admin account" is Class 2 because CT-PAM-1
+    fired. Its words are dominated by "password reset", so overlap alone retrieves
+    the routine-work policy, and the record would cite the paragraph saying the
+    action is fine directly beside a refusal.
+    """
+    action = "reset the password on the domain admin account"
+
+    by_words = index.find(action)
+    assert by_words["policy_id"] == "POL-RTN-01", (
+        "if this stops being the wrong answer the test has lost its point"
+    )
+
+    cited = index.citation(action, rule_ids=("CT-PAM-1",))
+    assert cited.startswith("POL-PAM-01"), cited
+
+    # And an unclassified action has no deciding rule, so it falls back to words
+    # and then to nothing, rather than borrowing whatever rule was passed.
+    assert index.citation("reticulate the client splines", rule_ids=()) is None
+
+    # Every rule the classifier can return must have a governing policy, or some
+    # decision will cite nothing for a reason nobody intended.
+    governed = {rule for p in index.policies for rule in p.get("governs", ())}
+    rules = json.loads(
+        (Path(__file__).resolve().parent.parent / "warrant" / "rules.json").read_text(encoding="utf-8")
+    )["rules"]
+    missing = {r["id"] for r in rules} - governed
+    assert not missing, f"rules with no governing policy: {sorted(missing)}"
+
+
 def main():
     index = PolicyIndex()
+    the_deciding_rule_outranks_the_words(index)
     every_policy_is_reachable(index)
     grounded_actions_find_their_policy(index)
     unsupported_actions_get_nothing(index)

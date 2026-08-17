@@ -145,9 +145,39 @@ class PolicyIndex:
             "support": round(best_score, 3),
         }
 
-    def citation(self, action):
-        """One line for the ledger, or None. This is what gets sealed."""
-        found = self.find(action)
+    def for_rules(self, rule_ids):
+        """The policy that governs the rule which actually decided, if any.
+
+        Lexical search alone gets this wrong in the case that matters most. "Reset
+        the password on the domain admin account" is Class 2 because CT-PAM-1 fired,
+        but the words are dominated by "password reset", so overlap retrieved the
+        routine-work policy: an audit record citing the paragraph that says the
+        action is fine, next to a refusal. The rule that decided is the fact, and
+        the words are only a hint, so the rule is consulted first.
+        """
+        wanted = set(rule_ids or ())
+        if not wanted:
+            return None
+        for policy in self.policies:
+            if wanted & set(policy.get("governs", ())):
+                return {
+                    "policy_id": policy["id"],
+                    "title": policy["title"],
+                    "implements": policy["implements"],
+                    "text": policy["text"],
+                    "support": None,
+                    "matched_by": "rule",
+                }
+        return None
+
+    def citation(self, action, rule_ids=None):
+        """One line for the ledger, or None. This is what gets sealed.
+
+        Rule first, words second. An unclassified action has no deciding rule, so it
+        falls through to lexical search, and if that finds nothing the citation is
+        None and the action is still refused.
+        """
+        found = self.for_rules(rule_ids) or self.find(action)
         if not found:
             return None
         return f"{found['policy_id']} ({found['implements']}): {found['title']}"

@@ -99,11 +99,15 @@ class Gateway:
             "approves": approves,
         })
 
-    def _cite(self, action):
+    def _cite(self, action, decision=None):
         """The governing policy line, or None. None is a legitimate answer and is
         recorded as such: a decision with no policy behind it should look like one
-        in the record, not borrow the nearest paragraph."""
-        return self.policies.citation(action)
+        in the record, not borrow the nearest paragraph.
+
+        The deciding rule is passed in, because the policy that governs a decision
+        follows from the rule that made it and not from what the action text
+        happens to say."""
+        return self.policies.citation(action, (decision or {}).get("rules"))
 
     def propose(self, action, system, cost_usd=0.0, model=None):
         """The only entry point an agent gets.
@@ -116,7 +120,7 @@ class Gateway:
 
         if system not in self.systems:
             row = self._record("refused", decision, system, cost_usd,
-                               policy_citation=self._cite(action))
+                               policy_citation=self._cite(action, decision))
             return {
                 "verdict": "refused",
                 "reason": f"unknown system {system!r}; this gateway cannot reach it",
@@ -128,7 +132,7 @@ class Gateway:
 
         if decision["class"] == 2:
             row = self._record("refused", decision, system, cost_usd,
-                               policy_citation=self._cite(action))
+                               policy_citation=self._cite(action, decision))
             return {
                 "verdict": "needs_human",
                 "reason": decision["citation"],
@@ -141,7 +145,7 @@ class Gateway:
 
         result = self.systems[system](action)
         row = self._record("executed", decision, system, cost_usd,
-                           policy_citation=self._cite(action))
+                           policy_citation=self._cite(action, decision))
         return {
             "verdict": "executed",
             "decision": decision,
@@ -180,7 +184,7 @@ class Gateway:
         }
         row = self._record(
             "executed_after_approval", decision, pending["system"], cost_usd,
-            decided_by, policy_citation=self._cite(pending["action"]),
+            decided_by, policy_citation=self._cite(pending["action"], decision),
             approves=record_hash,
         )
         return {"verdict": "executed_after_approval", "record": row["hash"], "result": result}
