@@ -1,0 +1,153 @@
+{
+  "version": "2026-08-11",
+  "note": "Single source of truth for action classification. Skills consult a stamped copy of this file; the original lives at the repo root. Rules only ever raise a class, never lower one, and an action matching nothing is Class 2 until a human classifies it.",
+  "classes": {
+    "1": {
+      "label": "routine, reversible",
+      "posture": "an automation may perform this without a human in the loop, provided it is logged"
+    },
+    "2": {
+      "label": "irreversible, security-relevant, or client-facing financial or legal weight",
+      "posture": "a named human must approve before the action is taken; an automation may prepare and propose it, never execute it"
+    }
+  },
+  "defaults": {
+    "unmatched_class": 2,
+    "reason": "An action nobody has classified is not thereby safe. Fail closed, name it as unclassified, and ask for a human ruling that becomes a new rule."
+  },
+  "rules": [
+    {
+      "id": "CT-CHG-1",
+      "title": "Change to a production client environment",
+      "class": 2,
+      "any": ["deploy", "push to production", "production change", "rollout", "cutover", "migrate", "firewall rule", "dns change", "group policy", "gpo"],
+      "authority": "ITIL 4 change enablement",
+      "citation": "Change enablement requires a formal approval gate before a change reaches a live environment: a change advisory board for major and significant changes, a designated change manager for minor ones.",
+      "approver": "change manager, or the CAB for major changes",
+      "automation_may": "raise the change request, assemble the impact assessment, draft the rollback plan"
+    },
+    {
+      "id": "CT-PAM-1",
+      "title": "Use or elevation of a privileged or admin account",
+      "class": 2,
+      "any": ["domain admin", "global admin", "privileged account", "elevate", "elevation", "sudo", "root access", "service account", "break glass", "break-glass"],
+      "authority": "Privileged access management, Microsoft Privileged Identity Management guidance",
+      "citation": "Privileged use requires an approval workflow with just-in-time, time-bound elevation validated against an open service ticket. Standing automated access is the anti-pattern. Break-glass accounts are kept outside automated approval flows entirely.",
+      "approver": "the account owner or security lead, against an open ticket",
+      "automation_may": "detect that elevation is needed, open the ticket, prepare the justification"
+    },
+    {
+      "id": "CT-CUI-1",
+      "title": "Anything touching controlled unclassified information",
+      "class": 2,
+      "any": ["cui", "controlled unclassified", "cmmc", "800-171", "nist 800-171", "system security plan", "ssp", "attestation", "affirm compliance", "poam", "plan of action"],
+      "authority": "CMMC and NIST SP 800-171",
+      "citation": "The system security plan covering the 110 controls, and any control-implementation attestation, require human review. Annual affirmation must be made by a person. No autonomous attestation is permitted. CMMC Phase II enforcement was suspended 2026-07-13 pending reform; the 800-171 self-assessment and affirmation obligations were not.",
+      "approver": "the named organisational affirming official",
+      "automation_may": "flag overdue reviews, assemble evidence, draft narrative for human verification"
+    },
+    {
+      "id": "CT-ACC-1",
+      "title": "Granting or revoking access following an HR event",
+      "class": 2,
+      "any": ["grant access", "revoke access", "offboard", "off-board", "terminate", "termination", "new hire", "onboarding access", "disable account", "reset mfa", "mfa re-enrol", "mfa re-enroll"],
+      "authority": "ITIL access management",
+      "citation": "Access changes must trace to an authorised request, an HR trigger, an RFC, or a service request, and require sign-off from an appropriate manager. Silent automation removes the control point.",
+      "approver": "the requesting manager, or HR for termination events",
+      "automation_may": "detect the HR trigger, prepare the access change, hold it pending sign-off",
+      "note": "A password reset for a verified user is Class 1 under CT-RTN-1. Re-enrolling MFA is not, because it is the control that proves identity."
+    },
+    {
+      "id": "CT-FIN-1",
+      "title": "Anything a client sees that carries money or legal weight",
+      "class": 2,
+      "any": ["invoice", "credit", "refund", "billing", "contract", "sow", "statement of work", "msa", "renewal", "price", "quote", "proposal", "sla credit", "breach notification"],
+      "authority": "Commercial and professional liability",
+      "citation": "The engagement's liability model and errors-and-omissions cover depend on an accountable person being identifiable for any consequential client-facing commitment.",
+      "approver": "the account manager or an owner",
+      "automation_may": "draft it, price it from the rate card, prepare it for review"
+    },
+    {
+      "id": "CT-SEC-1",
+      "title": "Security incident classification and client notification",
+      "class": 2,
+      "any": ["breach", "incident notification", "notify the client", "ransomware", "data loss", "exfiltration", "compromise", "declare an incident"],
+      "authority": "Incident response obligation, commonly a 72 hour notification window",
+      "citation": "Notification timelines are contractual and in places regulatory. The decision that an event is a reportable incident is a judgement with legal consequence.",
+      "approver": "the security lead or incident commander",
+      "automation_may": "detect, correlate, assemble the timeline, draft the notification, start the clock"
+    },
+    {
+      "id": "CT-BAK-1",
+      "title": "Deleting or overwriting data, backups, or retention state",
+      "class": 2,
+      "any": ["delete", "purge", "wipe", "destroy", "overwrite backup", "retention policy", "decommission", "format"],
+      "authority": "Data protection and recoverability",
+      "citation": "Deletion is the canonical irreversible action. A restore test that fails after the source is gone is not a recoverable position.",
+      "approver": "the data owner",
+      "automation_may": "identify candidates, verify a tested restore exists, stage the deletion"
+    },
+    {
+      "id": "CT-RTN-1",
+      "title": "Password reset for a verified user",
+      "class": 1,
+      "any": ["password reset", "reset password", "unlock account", "account lockout"],
+      "authority": "Routine service desk operation",
+      "citation": "Identity is proven by the existing MFA factor, the action is reversible, and it is consistently the highest-volume automatable request category.",
+      "approver": null,
+      "automation_may": "complete it end to end and log it",
+      "note": "This stops being Class 1 the moment MFA itself is being re-enrolled, because then the proof of identity is what is changing. See CT-ACC-1."
+    },
+    {
+      "id": "CT-RTN-2",
+      "title": "Known software install from an approved catalogue",
+      "class": 1,
+      "any": ["install", "software request", "license assignment", "approved application"],
+      "authority": "Routine service desk operation",
+      "citation": "Reversible, scoped to a pre-approved catalogue, and one of the three categories consistently cited as closable without a technician.",
+      "approver": null,
+      "automation_may": "complete it end to end and log it",
+      "note": "Only within an approved catalogue. An install outside it is a change, see CT-CHG-1."
+    },
+    {
+      "id": "CT-RTN-3",
+      "title": "Ticket triage, categorisation, and drafting",
+      "class": 1,
+      "any": ["triage", "categorise", "categorize", "classify the ticket", "draft a reply", "summarise", "summarize", "route the ticket"],
+      "authority": "Routine service desk operation",
+      "citation": "Reading, sorting, and drafting are reversible and produce no external effect. This is the work AI is documented to do well, and where deflection projects that stayed advisory succeeded.",
+      "approver": null,
+      "automation_may": "classify, route, and draft, provided the draft is not sent without review under CT-OUT-1"
+    },
+    {
+      "id": "CT-OUT-1",
+      "title": "Sending anything to a client",
+      "class": 2,
+      "any": ["send the email", "send it", "reply to the client", "publish", "post the reply", "notify", "auto-close"],
+      "authority": "Client communication and the accountability model",
+      "citation": "A drafted reply is Class 1 work. The act of sending is the point at which it becomes the provider's word, which is why review engines draft and stop.",
+      "approver": "the technician or account manager who owns the ticket",
+      "automation_may": "draft, queue, and present for one-click approval"
+    },
+    {
+      "id": "CT-MON-1",
+      "title": "Monitoring, alerting, and reporting",
+      "class": 1,
+      "any": ["monitor", "alert", "report", "dashboard", "scorecard", "assemble the qbr", "collect metrics"],
+      "authority": "Observation without effect",
+      "citation": "Reading state and reporting on it changes nothing. This is where automation should start while the data is still being cleaned.",
+      "approver": null,
+      "automation_may": "run continuously and unattended"
+    },
+    {
+      "id": "CT-SCR-1",
+      "title": "Running a generated script against a live endpoint",
+      "class": 2,
+      "any": ["run the script", "execute remotely", "remote script", "rmm script", "powershell against", "remediation script"],
+      "authority": "Change enablement plus the model-to-action boundary",
+      "citation": "Model-generated code reaching a live endpoint with no deterministic check between is the specific failure this whole kit exists to prevent. Generating the script is Class 1 work; running it is not.",
+      "approver": "a technician who has read the script",
+      "automation_may": "write the script, explain it, dry-run it, and wait"
+    }
+  ]
+}
