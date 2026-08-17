@@ -86,6 +86,41 @@ resealed edit where the forger recomputes that row's hash, which moves the break
 the row after it. The second is why the chain carries the guarantee rather than any
 single hash.
 
+## The policy behind the decision
+
+A rule id tells an auditor which rule fired. It does not tell them what policy the
+company was following, which is the next question. Each decision retrieves the
+internal policy that governs it and seals the citation into the row.
+
+Two disciplines, both borrowed from
+[runbook-rag](https://github.com/mariaangelikabuilds/runbook-rag):
+
+- **Cite or refuse.** Below the support threshold it returns nothing. It never
+  composes an answer from the closest paragraph and never emits a clause number
+  that is not in the corpus. A confident wrong citation in an audit record is worse
+  than no citation.
+- **No standard text is reproduced.** Every policy is written in-house and names
+  the external standard by identifier only. Copying NIST or ITIL text into this
+  repo would be a licensing problem and a maintenance lie, because the copy drifts.
+
+Cite-or-refuse and fail-closed are independent, which matters: an action with no
+policy support is still Class 2. Having no rule about something does not make it
+safe, and the record shows a null citation rather than the nearest paragraph.
+
+Lexical scoring, standard library only. Ten policies is not a corpus that needs
+embeddings, and the upgrade path is written in the module rather than pre-built.
+Getting there took three real bugs, all in `warrant/retrieve.py` comments: scoring
+as a ratio over a denominator the query controlled let *"reticulate the client
+splines"* cite the incident policy at full confidence on the word "client";
+asymmetric stemming meant "refund" never matched "refunds"; and IDF treated
+"what" as a rare valuable term because it appears exactly once in the corpus, so a
+weather question retrieved the script-execution policy. The fix that closed the
+class was structural rather than numeric: one matched word is a coincidence, so at
+least two distinct terms must match before anything is cited at all.
+
+Separation after that: supported floor 3.98, unsupported ceiling 0.00, threshold
+2.2 sitting in the gap. `python tests/test_retrieve.py` re-derives it.
+
 ## Running it
 
 ```
@@ -93,6 +128,7 @@ python -m warrant.server          # stateless streamable HTTP
 python tests/test_ledger.py       # chain properties
 python tests/test_gateway.py      # what it refuses to do
 python tests/test_server.py       # the MCP surface
+python tests/test_retrieve.py     # citation faithfulness and the threshold
 python evals/run_evals.py         # both arms, needs ANTHROPIC_API_KEY
 ```
 

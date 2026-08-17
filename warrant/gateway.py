@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 
 from .classify import classify, load_rules
 from .ledger import Ledger
+from .retrieve import PolicyIndex
 
 PROMPT_VERSION = "1.0.0"
 
@@ -66,6 +67,10 @@ class Gateway:
     def __init__(self, ledger_path, budget_usd, systems=None, rules_path=None):
         self.rules, self.rules_path = load_rules(rules_path)
         self.ledger = Ledger(ledger_path)
+        # The rule says which class and cites an external standard. This finds the
+        # internal policy that actually governs, so the sealed row carries the
+        # paragraph an auditor would ask for rather than a rule id they cannot read.
+        self.policies = PolicyIndex()
         self.budget = Budget(budget_usd)
         # A system this gateway has not been given is not reachable. Unknown
         # target is a refusal, not a passthrough.
@@ -94,6 +99,12 @@ class Gateway:
             "approves": approves,
         })
 
+    def _cite(self, action):
+        """The governing policy line, or None. None is a legitimate answer and is
+        recorded as such: a decision with no policy behind it should look like one
+        in the record, not borrow the nearest paragraph."""
+        return self.policies.citation(action)
+
     def propose(self, action, system, cost_usd=0.0, model=None):
         """The only entry point an agent gets.
 
@@ -104,7 +115,8 @@ class Gateway:
         decision = {**classify(action, self.rules), "model": model}
 
         if system not in self.systems:
-            row = self._record("refused", decision, system, cost_usd)
+            row = self._record("refused", decision, system, cost_usd,
+                               policy_citation=self._cite(action))
             return {
                 "verdict": "refused",
                 "reason": f"unknown system {system!r}; this gateway cannot reach it",
@@ -115,7 +127,8 @@ class Gateway:
         self.budget.charge(cost_usd)
 
         if decision["class"] == 2:
-            row = self._record("refused", decision, system, cost_usd)
+            row = self._record("refused", decision, system, cost_usd,
+                               policy_citation=self._cite(action))
             return {
                 "verdict": "needs_human",
                 "reason": decision["citation"],
@@ -127,7 +140,8 @@ class Gateway:
             }
 
         result = self.systems[system](action)
-        row = self._record("executed", decision, system, cost_usd)
+        row = self._record("executed", decision, system, cost_usd,
+                           policy_citation=self._cite(action))
         return {
             "verdict": "executed",
             "decision": decision,
@@ -166,7 +180,8 @@ class Gateway:
         }
         row = self._record(
             "executed_after_approval", decision, pending["system"], cost_usd,
-            decided_by, approves=record_hash,
+            decided_by, policy_citation=self._cite(pending["action"]),
+            approves=record_hash,
         )
         return {"verdict": "executed_after_approval", "record": row["hash"], "result": result}
 

@@ -1,0 +1,65 @@
+{
+  "note": "Internal policy statements, written here. Each names the external standard it implements by identifier only. No text from any standard is reproduced, and no clause is quoted: the citation points a reader at the source rather than standing in for it. A retrieval that cannot find support returns nothing rather than inventing a clause number.",
+  "policies": [
+    {
+      "id": "POL-CHG-01",
+      "title": "Production change requires a change record",
+      "implements": "ITIL 4, change enablement",
+      "text": "No change reaches a client production environment without a change record naming the requester, the window, the backout, and the person accountable. Emergency changes still get a record, written before the change where possible and immediately after where not. Automation may prepare the record and may not approve it."
+    },
+    {
+      "id": "POL-PAM-01",
+      "title": "Privileged access is granted per use, not standing",
+      "implements": "NIST SP 800-171, access control family; Microsoft Privileged Identity Management guidance",
+      "text": "Administrative rights are elevated for one task, bound to one open ticket, and expire on a timer. Standing administrative access for an automated identity is not granted. Break-glass credentials sit outside any automated approval path and their use raises an incident by definition."
+    },
+    {
+      "id": "POL-CUI-01",
+      "title": "Controlled information is handled by named people",
+      "implements": "NIST SP 800-171; CMMC assessment scope",
+      "text": "Any work touching controlled unclassified information is performed by a named person inside the assessed boundary. Automation may identify that information is in scope and must hand the work to that person. Moving such information between systems is a change, not a task."
+    },
+    {
+      "id": "POL-ACC-01",
+      "title": "Access changes follow the HR record, not the request",
+      "implements": "ITIL 4, request fulfilment; NIST SP 800-171, access control family",
+      "text": "Access is granted or revoked against a record from HR, not against a message from a manager or a colleague. Offboarding revokes on the effective date and is reconciled against the HR record afterwards. Automation may prepare and may not execute the change."
+    },
+    {
+      "id": "POL-FIN-01",
+      "title": "Money and contract language leave under a person's name",
+      "implements": "internal delegation of authority",
+      "text": "Credits, refunds, invoice adjustments, and any statement about contractual obligation are issued by a person with delegated authority for that client. Automation may calculate the amount, assemble the evidence, and draft the message. It may not release funds and may not commit the company in writing."
+    },
+    {
+      "id": "POL-SEC-01",
+      "title": "Incident classification and client notification are human decisions",
+      "implements": "NIST SP 800-171, incident response family",
+      "text": "The severity of a security incident, and whether and when a client is told, are decided by the security lead. Automation may gather indicators, correlate them, and draft the notification. Telling the client is not a task that can be delegated to a system."
+    },
+    {
+      "id": "POL-BAK-01",
+      "title": "Deletion is irreversible and therefore approved",
+      "implements": "ITIL 4, service continuity; internal retention schedule",
+      "text": "Deleting or overwriting client data, backup sets, or retention state requires approval from the data owner against the retention schedule. Volume does not make a deletion routine. Automation may identify candidates and report them and may not remove them."
+    },
+    {
+      "id": "POL-OUT-01",
+      "title": "Nothing reaches a client without a person sending it",
+      "implements": "internal communications standard",
+      "text": "Outbound messages to a client, whether one reply or a broadcast, are released by a person. Automation drafts, queues, and holds. The gate is on sending, not on drafting, because a draft costs nothing and a sent message cannot be recalled."
+    },
+    {
+      "id": "POL-SCR-01",
+      "title": "Code runs on a live endpoint only under a named operator",
+      "implements": "ITIL 4, change enablement; NIST SP 800-171, configuration management family",
+      "text": "A script executed against a live endpoint is a change to that endpoint. Automation may generate the script, explain it, and stage it. Execution is performed or explicitly authorised by a named operator who can describe what it does."
+    },
+    {
+      "id": "POL-RTN-01",
+      "title": "Verified routine work may run unattended",
+      "implements": "ITIL 4, request fulfilment",
+      "text": "Password resets for an identity-verified user, installs from the approved catalogue, ticket triage and drafting, and monitoring and reporting are routine and may be automated end to end. Routine is a property of the action and the verification, not of how busy the queue is."
+    }
+  ]
+}
