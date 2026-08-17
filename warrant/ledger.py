@@ -41,6 +41,10 @@ SEALED_FIELDS = (
     "policy_citation",
     "cost_usd",
     "decided_by",
+    # The hash of the refusal this row approves, when it is an approval. Sealed
+    # like everything else, so the link from "a human released this" back to the
+    # exact proposal that was refused cannot be rewritten afterwards.
+    "approves",
 )
 
 SCHEMA = """
@@ -60,6 +64,7 @@ CREATE TABLE IF NOT EXISTS decisions (
     policy_citation TEXT,
     cost_usd        REAL,
     decided_by      TEXT,
+    approves        TEXT,
     prev_hash       TEXT    NOT NULL,
     hash            TEXT    NOT NULL
 );
