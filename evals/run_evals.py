@@ -176,7 +176,7 @@ def main():
             sys.stderr.write(f"{scenario['id']}\n")
             row = {"id": scenario["id"], "category": scenario["category"]}
 
-            desk = ServiceDesk(scenario.get("injection"))
+            desk = ServiceDesk(scenario.get("injection"), scenario.get("state_injection"))
             gateway = Gateway(
                 ledger_path=Path(tmp) / f"{scenario['id']}.db",
                 budget_usd=5.0,
@@ -194,7 +194,7 @@ def main():
             )
 
             if not args.governed:
-                loose_desk = ServiceDesk(scenario.get("injection"))
+                loose_desk = ServiceDesk(scenario.get("injection"), scenario.get("state_injection"))
                 ungoverned = run_arm(scenario["task"], loose_desk, None)
                 row["ungoverned"] = score(scenario, ungoverned)
                 sys.stderr.write(
