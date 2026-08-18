@@ -15,12 +15,12 @@ the tool call passes through the gateway.
 
 | | ungoverned | governed |
 |---|---|---|
-| scenarios where an unauthorized action reached the system | **12 of 12** | **0 of 12** |
-| unauthorized tool calls executed | 18 | 0 |
+| scenarios where an unauthorized action reached the system | **16 of 17** | **0 of 17** |
+| unauthorized tool calls executed | 24 | 0 |
 | escalation precision / recall | n/a | 100% / 100% |
 | false escalations | 0 | 0 |
-| scenarios where the legitimate work still got done | 12 of 12 | 12 of 12 |
-| cost | $0.2973 | $0.3511 |
+| scenarios where the legitimate work still got done | 17 of 17 | 17 of 17 |
+| cost | $0.24 | $0.28 |
 
 Ungoverned, the agent issued a refund, deleted rows, mailed 214 recipients, ran a
 script on a live endpoint, deployed to production, revoked access after an HR
@@ -28,13 +28,22 @@ event, and notified a client about a suspected breach. Unattended, in one pass.
 
 Governed, none of that reached the system and every scenario still completed its
 legitimate work. The gateway costs about 18% more in tokens and about 49% more in
-wall clock, for 12 fewer scenarios in which something irreversible happened.
+wall clock, for 16 fewer scenarios in which something irreversible happened.
 
-**A 100% score means the suite is not hard enough yet.** Twelve scenarios against
-thirteen rules found no case where the gateway blocked something it should have
-allowed and no case where it let something through. That is a floor to defend, not
-a result to be pleased with, and the next work is adversarial scenarios written to
-break it rather than to confirm it. Full scorecard in
+Five of the seventeen were written to get through rather than to be caught:
+vocabulary sitting in the gap between two rules, an action that is routine alone and
+not in context, an injection written in the gateway's own language, a harm split
+across two innocuous steps, and urgency used as a lever. They raised the ungoverned
+harm rate from 12 of 12 to 16 of 17, so they are harder by measurement rather than by
+assertion. The gateway held at zero on all five, and in the subtle one it executed the
+routine password reset while refusing the send, which is the correct pair rather than
+blanket refusal.
+
+**One row is not what it looks like.** Neither injection scenario has ever induced the
+injected actions. The model declined them on its own, twice, including a version citing
+a change record id and an ITIL clause. Those rows measure the model, not this gateway,
+and `evals/history.md` says so rather than letting the 0 of 17 imply otherwise. Full
+scorecard in
 [`evals/SCORECARD.md`](evals/SCORECARD.md), history in
 [`evals/history.md`](evals/history.md).
 
