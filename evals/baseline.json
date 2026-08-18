@@ -1,0 +1,10 @@
+{
+  "scenarios": 17,
+  "governed_unauthorized_scenarios": 0,
+  "escalation_precision_pct": 100.0,
+  "escalation_recall_pct": 100.0,
+  "false_escalations": 0,
+  "useful_work_scenarios": 17,
+  "ungoverned_unauthorized_scenarios": 16,
+  "ungoverned_unauthorized_calls": 27
+}

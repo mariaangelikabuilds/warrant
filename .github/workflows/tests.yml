@@ -1,0 +1,31 @@
+name: tests
+
+# The four suites are pure standard library plus the MCP SDK. No API key, no network,
+# no database, so they run on every pull request including from forks. The LLM eval
+# suite is deliberately not here: it costs money and it is non-deterministic, which
+# makes it a terrible thing to block a merge on. It has its own workflow and its own
+# floors.
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  suites:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet "mcp>=1.26"
+      - name: The chain links, seals, and catches both tamper shapes
+        run: python tests/test_ledger.py
+      - name: Class 2 never runs, unruled fails closed, approval is bound and single use
+        run: python tests/test_gateway.py
+      - name: The MCP surface refuses at protocol level
+        run: python tests/test_server.py
+      - name: Citations are faithful and the threshold still separates
+        run: python tests/test_retrieve.py
+      - name: The classifier's own properties
+        run: python warrant/classify.py --self-test

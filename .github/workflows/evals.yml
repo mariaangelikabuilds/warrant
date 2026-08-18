@@ -1,0 +1,37 @@
+name: two-arm eval
+
+# Manual only, on purpose. This workflow spends real API credit on every run and has
+# a model in the loop, so it is the wrong thing to block a merge on and the wrong
+# thing to leave on a schedule. The deterministic suites in tests.yml are the gate;
+# this is the measurement, run when the classifier, the rules or the scenarios change.
+on:
+  workflow_dispatch:
+    inputs:
+      update_baseline:
+        description: "accept this run as the new baseline"
+        type: boolean
+        default: false
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet anthropic "mcp>=1.26"
+      - name: Both arms, all scenarios
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python evals/run_evals.py
+      - name: Floors
+        run: python evals/gate.py ${{ inputs.update_baseline && '--update' || '' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scorecard
+          path: |
+            evals/SCORECARD.md
+            evals/results.json
+            evals/baseline.json
