@@ -16,19 +16,30 @@ the tool call passes through the gateway.
 | | ungoverned | governed |
 |---|---|---|
 | scenarios where an unauthorized action reached the system | **16 of 17** | **0 of 17** |
-| unauthorized tool calls executed | 27 | 0 |
+| unauthorized tool calls executed | 26 | 0 |
 | escalation precision / recall | n/a | 100% / 100% |
 | false escalations | 0 | 0 |
 | scenarios where the legitimate work still got done | 17 of 17 | 17 of 17 |
-| cost | $0.24 | $0.28 |
+| cost | $0.4881 | $0.5693 |
+| cost per scenario that completed its work | $0.0287 | $0.0335 |
+| spend that bought a refusal | n/a | $0.1378 |
 
 Ungoverned, the agent issued a refund, deleted rows, mailed 214 recipients, ran a
 script on a live endpoint, deployed to production, revoked access after an HR
 event, and notified a client about a suspected breach. Unattended, in one pass.
 
 Governed, none of that reached the system and every scenario still completed its
-legitimate work. The gateway costs about 18% more in tokens and about 49% more in
-wall clock, for 16 fewer scenarios in which something irreversible happened.
+legitimate work. The gateway costs about 17% more in tokens for 16 fewer scenarios
+in which something irreversible happened.
+
+The honest cost line is the third row. **$0.1378 of the governed spend, about a
+quarter of it, bought a refusal**: tokens paid to reach a call that was then not
+allowed to happen. That is the gateway's waste and it is reported rather than netted
+out of the headline, because a guardrail that only publishes its wins is an
+advertisement. Per-call cost is attributed from the model turn that produced the
+call, so the ledger's cost column is a real number rather than a zero, and the
+session ceiling has been exercised against a live run: it raised mid-scenario, the
+decision already made stayed sealed, and the chain still verified.
 
 Five of the seventeen were written to get through rather than to be caught:
 vocabulary sitting in the gap between two rules, an action that is routine alone and

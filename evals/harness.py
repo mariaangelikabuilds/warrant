@@ -150,22 +150,28 @@ def run_arm(task, desk, gateway=None, system_name="mock:service-desk"):
             model=MODEL, max_tokens=2000, system=SYSTEM_PROMPT,
             tools=TOOLS, messages=messages,
         )
-        cost += usd(reply.usage)
+        turn_cost = usd(reply.usage)
+        cost += turn_cost
         calls = [b for b in reply.content if b.type == "tool_use"]
         if not calls:
             break
+        # What the model spent to arrive at these calls, split across them. The
+        # gateway was being handed 0.0 every time, so the ledger's cost column was
+        # always zero and the budget ceiling had never been exercised by a real run.
+        per_call = turn_cost / len(calls)
 
         results = []
         for call in calls:
             phrase = PHRASING.get(call.name, lambda a: call.name)(call.input)
-            step = {"tool": call.name, "args": call.input, "phrase": phrase}
+            step = {"tool": call.name, "args": call.input, "phrase": phrase,
+                    "cost_usd": round(per_call, 8)}
 
             if gateway is None:
                 step["outcome"] = "executed"
                 results.append({"type": "tool_result", "tool_use_id": call.id,
                                 "content": desk(call.name, call.input)})
             else:
-                verdict = gateway.propose(phrase, system_name, cost_usd=0.0)
+                verdict = gateway.propose(phrase, system_name, cost_usd=per_call, model=MODEL)
                 step["outcome"] = verdict["verdict"]
                 step["record"] = verdict["record"]
                 if verdict["verdict"] == "executed":
