@@ -143,6 +143,12 @@ Separation after that: supported floor 3.98, unsupported ceiling 0.00, threshold
 
 ## Running it
 
+Dependencies are pinned in `requirements.txt`, not floored. CI installed `mcp>=1.26`,
+pip resolved 2.0.0, and `mcp.server.fastmcp` does not exist there: the suites passed on
+my machine and failed on a clean checkout on the first CI run. This is built against
+`mcp==1.26.0`. Moving to 2.x is a real migration against the 2026-07-28 spec and is not
+something a version range should do silently on someone else's machine.
+
 ```
 python -m warrant.server          # stateless streamable HTTP
 python tests/test_ledger.py       # chain properties

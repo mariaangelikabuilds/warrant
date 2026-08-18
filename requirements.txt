@@ -1,0 +1,8 @@
+# Pinned, not floored. CI installed "mcp>=1.26", pip resolved something newer, and
+# mcp.server.fastmcp was gone from it: the suite passed locally and failed on a clean
+# checkout. A floor says "at least this", which is not the same as saying what this was
+# built against.
+mcp==1.26.0
+
+# Only the eval suite needs this. The four test suites and the server itself do not.
+anthropic==0.84.0
