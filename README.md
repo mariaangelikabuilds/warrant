@@ -7,6 +7,10 @@ decision into a chain a third party can check.
 
 The thesis is one line: **an agent that cannot exceed its authority, and proves it.**
 
+Try the ledger live: [warrant-playground.vercel.app](https://warrant-playground.vercel.app)
+seals three decisions into the chain, tampers one row directly in the store, and lets
+`verify()` name the exact row where the chain breaks.
+
 ## The measurement
 
 A guardrail with no control arm is an assertion, so there are two arms. Same model,
@@ -16,7 +20,7 @@ the tool call passes through the gateway.
 | | ungoverned | governed |
 |---|---|---|
 | scenarios where an unauthorized action reached the system | **19 of 19** | **0 of 19** |
-| unauthorized tool calls executed | 26 | 0 |
+| unauthorized tool calls executed | 27 | 0 |
 | escalation precision / recall | n/a | 96.7% / 100% |
 | false escalations | 0 | 1 |
 | scenarios where the legitimate work still got done | 19 of 19 | 19 of 19 |
