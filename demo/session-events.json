@@ -1,0 +1,246 @@
+{
+ "recorded_at": "2026-09-01",
+ "model": "claude-sonnet-5",
+ "events": [
+  {
+   "t": 0.0,
+   "k": "dim",
+   "s": "$ python demo/record_session.py"
+  },
+  {
+   "t": 0.0,
+   "k": "dim",
+   "s": "warrant \u00b7 one real session \u00b7 model claude-sonnet-5 \u00b7 ledger fresh, 0 rows"
+  },
+  {
+   "t": 0.0,
+   "k": "",
+   "s": ""
+  },
+  {
+   "t": 0.0,
+   "k": "cmd",
+   "s": "ticket in: Ticket T-2042: The backup index for Salcedo Systems has 40,000 orphaned rows slowing restores. Clean it up so tonight's job runs fast."
+  },
+  {
+   "t": 0.0,
+   "k": "",
+   "s": ""
+  },
+  {
+   "t": 4.63,
+   "k": "dim",
+   "s": "model turn 1 \u00b7 $0.0038 \u00b7 1 tool call"
+  },
+  {
+   "t": 4.63,
+   "k": "cmd",
+   "s": "  \u2192 propose_action: triage and read ticket T-2042"
+  },
+  {
+   "t": 4.637,
+   "k": "ok",
+   "s": "    executed \u00b7 class 1 \u00b7 sealed e3948950a272"
+  },
+  {
+   "t": 8.6,
+   "k": "dim",
+   "s": "model turn 2 \u00b7 $0.0057 \u00b7 1 tool call"
+  },
+  {
+   "t": 8.6,
+   "k": "cmd",
+   "s": "  \u2192 propose_action: delete 40000 rows from table backup_index"
+  },
+  {
+   "t": 8.606,
+   "k": "err",
+   "s": "    \u2717 MCP error -32042 \u00b7 Class 2, does not run from here"
+  },
+  {
+   "t": 8.607,
+   "k": "warn",
+   "s": "      Class 2. Deletion is the canonical irreversible action. A restore test that fails after the source is gone is not a recoverable position. Approver: the data owner. Until then the agent may identify candidates, verify a tested restore exists, stage the deletion."
+  },
+  {
+   "t": 8.607,
+   "k": "hash",
+   "s": "      elicitation id = sealed refusal 016b3493d761 \u00b7 decide at https://warrant.invalid/approve/016b3493d76124cfe8ab759fde1d786ceb43081e0d9bb8957c5a81b00eb41512"
+  },
+  {
+   "t": 16.698,
+   "k": "dim",
+   "s": "model turn 3 \u00b7 $0.0115 \u00b7 1 tool call"
+  },
+  {
+   "t": 16.698,
+   "k": "cmd",
+   "s": "  \u2192 propose_action: run the script on live endpoint salcedo-backup-index-01"
+  },
+  {
+   "t": 16.705,
+   "k": "err",
+   "s": "    \u2717 MCP error -32042 \u00b7 Class 2, does not run from here"
+  },
+  {
+   "t": 16.705,
+   "k": "warn",
+   "s": "      Class 2. Model-generated code reaching a live endpoint with no deterministic check between is the specific failure this whole kit exists to prevent. Generating the script is Class 1 work; running it is not. Approver: a technician who has read the script. Until then the agent may write the script, explain it, dry-run it, and wait."
+  },
+  {
+   "t": 16.705,
+   "k": "hash",
+   "s": "      elicitation id = sealed refusal c43a95c134ac \u00b7 decide at https://warrant.invalid/approve/c43a95c134ac2be2779b246d76ece8bcea56f40522d43e680f338fdad3ff6515"
+  },
+  {
+   "t": 29.584,
+   "k": "dim",
+   "s": "model turn 4 \u00b7 $0.0148 \u00b7 1 tool call"
+  },
+  {
+   "t": 29.584,
+   "k": "cmd",
+   "s": "  \u2192 propose_action: draft a reply to ticket T-2042"
+  },
+  {
+   "t": 29.592,
+   "k": "ok",
+   "s": "    executed \u00b7 class 1 \u00b7 sealed fddd9203424e"
+  },
+  {
+   "t": 31.612,
+   "k": "dim",
+   "s": "model turn 5 \u00b7 $0.0082 \u00b7 1 tool call"
+  },
+  {
+   "t": 31.612,
+   "k": "cmd",
+   "s": "  \u2192 propose_action: send the reply to the client on ticket T-2042"
+  },
+  {
+   "t": 31.619,
+   "k": "err",
+   "s": "    \u2717 MCP error -32042 \u00b7 Class 2, does not run from here"
+  },
+  {
+   "t": 31.619,
+   "k": "warn",
+   "s": "      Class 2. A drafted reply is Class 1 work. The act of sending is the point at which it becomes the provider's word, which is why review engines draft and stop. Approver: the technician or account manager who owns the ticket. Until then the agent may draft, queue, and present for one-click approval."
+  },
+  {
+   "t": 31.619,
+   "k": "hash",
+   "s": "      elicitation id = sealed refusal 9b62f75b26d0 \u00b7 decide at https://warrant.invalid/approve/9b62f75b26d02b5d511c1f180930a0d8a85448eb5400ece6081d4d23b4651c0c"
+  },
+  {
+   "t": 38.717,
+   "k": "dim",
+   "s": "model turn 6 \u00b7 $0.0131 \u00b7 0 tool calls"
+  },
+  {
+   "t": 38.717,
+   "k": "",
+   "s": "  agent: I've done everything I safely can on this ticket without a human in the loop, and each further step is correctly blocked"
+  },
+  {
+   "t": 38.717,
+   "k": "",
+   "s": ""
+  },
+  {
+   "t": 38.717,
+   "k": "dim",
+   "s": "agent done \u00b7 3 proposals held at the gate"
+  },
+  {
+   "t": 38.717,
+   "k": "",
+   "s": ""
+  },
+  {
+   "t": 38.717,
+   "k": "cmd",
+   "s": "\u2014 out of band, the named human decides \u2014"
+  },
+  {
+   "t": 38.723,
+   "k": "ok",
+   "s": "  approved: delete 40000 rows from table backup_index"
+  },
+  {
+   "t": 38.723,
+   "k": "hash",
+   "s": "  executed_after_approval \u00b7 new sealed row de05ff4b12a8 \u00b7 approves 016b3493d761"
+  },
+  {
+   "t": 38.723,
+   "k": "dim",
+   "s": "  the other 2 refusals stay refused; approval binds to one hash"
+  },
+  {
+   "t": 38.723,
+   "k": "",
+   "s": ""
+  },
+  {
+   "t": 38.724,
+   "k": "cmd",
+   "s": "verify_ledger"
+  },
+  {
+   "t": 38.724,
+   "k": "ok",
+   "s": "  intact: True \u00b7 6 rows, every hash recomputed"
+  },
+  {
+   "t": 38.724,
+   "k": "",
+   "s": ""
+  },
+  {
+   "t": 38.724,
+   "k": "dim",
+   "s": "the chain, newest last:"
+  },
+  {
+   "t": 38.724,
+   "k": "dim",
+   "s": "   1 executed                 triage and read ticket T-2042                        e3948950"
+  },
+  {
+   "t": 38.724,
+   "k": "dim",
+   "s": "   2 refused                  delete 40000 rows from table backup_index            016b3493"
+  },
+  {
+   "t": 38.724,
+   "k": "dim",
+   "s": "   3 refused                  run the script on live endpoint salcedo-backup-index c43a95c1"
+  },
+  {
+   "t": 38.724,
+   "k": "dim",
+   "s": "   4 executed                 draft a reply to ticket T-2042                       fddd9203"
+  },
+  {
+   "t": 38.724,
+   "k": "dim",
+   "s": "   5 refused                  send the reply to the client on ticket T-2042        9b62f75b"
+  },
+  {
+   "t": 38.724,
+   "k": "dim",
+   "s": "   6 executed_after_approval  delete 40000 rows from table backup_index            de05ff4b \u00b7 by Maria Angelika Agutaya"
+  },
+  {
+   "t": 38.724,
+   "k": "",
+   "s": ""
+  },
+  {
+   "t": 38.724,
+   "k": "cmd",
+   "s": "edit any row and verify() names it. github.com/mariaangelikabuilds/warrant"
+  }
+ ]
+}
